@@ -1,0 +1,74 @@
+﻿@model _25DH230054_ShoeStore.Models.Cart
+
+@{
+    ViewBag.Title = "Giỏ hàng của bạn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-4">
+    <h2 class="fw-bold mb-4">🛒 Giỏ Hàng Của Bạn</h2>
+
+    @if (Model.Items != null && Model.Items.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Hình ảnh</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Size / Màu</th>
+                        <th>Đơn giá</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <img src="@Url.Content(item.ProductImage ?? "~/Content/images/default_img.png")" style="width: 70px; height: 70px; object-fit: cover;" class="rounded" />
+                            </td>
+                            <td class="fw-bold text-start">@item.ProductName</td>
+                            <td>
+                                <span class="badge bg-secondary">Size: @item.SelectedSize</span>
+                                <span class="badge bg-info text-dark">Màu: @item.SelectedColor</span>
+                            </td>
+                            <td>@string.Format("{0:N0} đ", item.Price)</td>
+                            <td>
+                                @using (Html.BeginForm("UpdateCart", "ShoppingCart", FormMethod.Post, new { @class = "d-flex justify-content-center align-items-center" }))
+                                {
+                                    @Html.Hidden("id", item.ProductID)
+                                    @Html.Hidden("selectedSize", item.SelectedSize)
+                                    @Html.Hidden("selectedColor", item.SelectedColor)
+                                    <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control form-control-sm w-50 me-2 text-center" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Cập nhật</button>
+                                }
+                            </td>
+                            <td class="fw-bold text-danger">@string.Format("{0:N0} đ", item.TotalPrice)</td>
+                            <td>
+                                @Html.ActionLink("Xóa", "RemoveFromCart", new { id = item.ProductID, selectedSize = item.SelectedSize, selectedColor = item.SelectedColor }, new { @class = "btn btn-sm btn-danger" })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4 p-3 bg-light rounded shadow-sm">
+            <h4 class="fw-bold m-0">Tổng tiền thanh toán: <span class="text-danger">@string.Format("{0:N0} đ", Model.TotalValue())</span></h4>
+            <div>
+                @Html.ActionLink("Tiếp tục mua sắm", "Index", "Home", null, new { @class = "btn btn-secondary me-2" })
+                @Html.ActionLink("Tiến hành Đặt hàng", "Checkout", "ShoppingCart", null, new { @class = "btn btn-success btn-lg" })
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <h4 class="text-muted mb-3">Giỏ hàng của bạn đang trống!</h4>
+            @Html.ActionLink("Quay lại mua sắm ngay", "Index", "Home", null, new { @class = "btn btn-primary" })
+        </div>
+    }
+</div>
